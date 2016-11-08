@@ -1,0 +1,39 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+use feature 'say';
+
+my $VERSION = '0.1';
+
+my $whoiscommand = 'jwhois';
+
+# strip http:// and suffixing / off domains and throw into jwhois.
+
+unless ($ARGV[0]) {
+	say 'no input detected';
+	exit(1);
+}
+
+unless (`whereis jwhois`) {
+	warn('jwhois not detected, falling back to whois');
+	$whoiscommand = 'whois';
+	unless (`whereis whois`) {
+		die('no whois detected either; exiting');
+	}
+}
+
+foreach (@ARGV) {
+	chomp;
+	#skip if argument (starts with hyphen)
+	if ( m/^-/ ) {
+		next;
+	}
+	s/^https?:\/\///;
+	s/^www\.//;
+	s/\/$//;
+}
+
+my $toWhois = join(' ', @ARGV);
+
+say `$whoiscommand $toWhois`;
